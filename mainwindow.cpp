@@ -127,8 +127,6 @@ void MainWindow::processThread(LabelButton *currButton)
         findChild<LabelButton*>("play")->setEnabled(true);
         findChild<LabelButton*>("pause")->setEnabled(false);
         genThread->quit();
-        genThread->wait();
-        qDebug() << genThread->isFinished();
         genThread = nullptr;
     }
 
