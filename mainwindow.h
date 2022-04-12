@@ -53,6 +53,11 @@ public slots:
     {
         isPause = !isPause;
     }
+
+    bool isThreadPause()
+    {
+        return isPause;
+    }
 signals:
     /*!
      * \brief randValue - сигнал, возвращающий случайные значения для графика

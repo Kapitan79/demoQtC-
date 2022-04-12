@@ -21,6 +21,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if(genThread)
+    {
+        if (genThread->isThreadPause())
+            genThread->setThreadPause();
+        genThread->setThreadStop();
+        genThread->quit();
+        genThread->wait();
+    }
+
     delete ui;
 }
 
@@ -103,7 +112,10 @@ void MainWindow::processThread(LabelButton *currButton)
         {
             genThread = new GenerateThread(this);
             connect(genThread, &GenerateThread::randValue, this, &MainWindow::addDotToPlot);
-            connect(genThread, &GenerateThread::finished, genThread, &QObject::deleteLater);
+            connect(genThread, &GenerateThread::finished, genThread, [=] () {
+                genThread->deleteLater();
+                genThread = nullptr;
+            });
             genThread->start();
         }
         else
@@ -119,6 +131,9 @@ void MainWindow::processThread(LabelButton *currButton)
         findChild<LabelButton*>("play")->setEnabled(true);
         findChild<LabelButton*>("stop")->setEnabled(true);
     } else if(currButton->objectName() == "stop") {
+
+        if (genThread->isThreadPause())
+            genThread->setThreadPause();
         genThread->setThreadStop();        
         custPlot->graph(0)->data()->clear();
         xv.clear();
@@ -127,7 +142,7 @@ void MainWindow::processThread(LabelButton *currButton)
         findChild<LabelButton*>("play")->setEnabled(true);
         findChild<LabelButton*>("pause")->setEnabled(false);
         genThread->quit();
-        genThread = nullptr;
+        genThread->wait();
     }
 
 }
