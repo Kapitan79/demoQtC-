@@ -39,6 +39,10 @@ class GenerateThread : public QThread
      * \return
      */
     int randomBetween(int interval = 100, int minValue = 0);
+
+public:
+    GenerateThread(QObject *parent = nullptr);
+
 public slots:
     void setThreadStop()
     {

@@ -101,7 +101,7 @@ void MainWindow::processThread(LabelButton *currButton)
     if(currButton->objectName() == "play"){
         if (!genThread)
         {
-            genThread = new GenerateThread;
+            genThread = new GenerateThread(this);
             connect(genThread, &GenerateThread::randValue, this, &MainWindow::addDotToPlot);
             connect(genThread, &GenerateThread::finished, genThread, &QObject::deleteLater);
             genThread->start();
@@ -111,23 +111,25 @@ void MainWindow::processThread(LabelButton *currButton)
             genThread->setThreadPause();
 
         }
-        this->findChild<LabelButton*>("pause")->setEnabled(true);
-        this->findChild<LabelButton*>("stop")->setEnabled(true);
+        findChild<LabelButton*>("pause")->setEnabled(true);
+        findChild<LabelButton*>("stop")->setEnabled(true);
     } else if(currButton->objectName() == "pause") {
         genThread->setThreadPause();
 
-        this->findChild<LabelButton*>("play")->setEnabled(true);
-        this->findChild<LabelButton*>("stop")->setEnabled(true);
+        findChild<LabelButton*>("play")->setEnabled(true);
+        findChild<LabelButton*>("stop")->setEnabled(true);
     } else if(currButton->objectName() == "stop") {
-        genThread->setThreadStop();
-        genThread = nullptr;
-
+        genThread->setThreadStop();        
         custPlot->graph(0)->data()->clear();
         xv.clear();
         yv.clear();
         custPlot->replot();
-        this->findChild<LabelButton*>("play")->setEnabled(true);
-        this->findChild<LabelButton*>("pause")->setEnabled(false);
+        findChild<LabelButton*>("play")->setEnabled(true);
+        findChild<LabelButton*>("pause")->setEnabled(false);
+        genThread->quit();
+        genThread->wait();
+        qDebug() << genThread->isFinished();
+        genThread = nullptr;
     }
 
 }
@@ -195,4 +197,9 @@ int GenerateThread::randomBetween(int interval, int minValue)
     int valueX = QRandomGenerator::global()->generate() % interval + minValue;
     emit randValue(valueX, valueY);
     return valueX;
+}
+
+GenerateThread::GenerateThread(QObject *parent):QThread(parent)
+{
+
 }
